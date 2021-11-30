@@ -1,16 +1,12 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 
-//TEST change 2
-
 void diag();
 void pixhawk_USB();
 void RFD900_Pixhawk();
 void RFD900_Jetson();
-void RFD900_Jetson_soft();
 
 SoftwareSerial softSerial(22, 23); // RX, TX
-SoftwareSerial softSerial1(2, 4); // RX, TX
 
 int GPIO_STATE = 0;
 int GPIO36 = 36;
@@ -20,10 +16,9 @@ int GPIO34 = 34;
 int incomingByte = 0; // for incoming serial data
 
 void setup() {
-  softSerial.begin(57600); // Tx=GPIO23 Rx=GPIO22 ->Pixhawk
-  softSerial1.begin(57600); // Tx=GPIO1 Rx=GPIO3 ->Jetson
-  Serial.begin(57600);  // USB ->Jetson
-  Serial2.begin(57600); //Tx=GPIO17 Rx=GPIO16 ->RFD900
+  softSerial.begin(57600); //PIXHAWK  - Tx=GPIO23 Rx=GPIO22 
+  Serial.begin(57600);  //JETSON - USB
+  Serial2.begin(57600); //RFD900 - Tx=GPIO17 Rx=GPIO16 
   pinMode(14,OUTPUT); //PIXhawk active
   pinMode(12,OUTPUT); //Jetson Active
   pinMode(36, INPUT); // RFD GPIO 3 
@@ -55,8 +50,7 @@ void loop() {
       digitalWrite(12,HIGH);
       break;
     case 6: //Jetson Mode
-      RFD900_Jetson_soft();
-      //pixhawk_USB();
+      RFD900_Jetson();
       digitalWrite(14,LOW);
       digitalWrite(12,HIGH);
       break;
@@ -107,12 +101,3 @@ void RFD900_Jetson(){
   }
 }
 
-void RFD900_Jetson_soft(){
-  if (softSerial1.available()) {     
-    Serial2.write(softSerial1.read());   
-  }
-
-  if (Serial2.available()) {    
-    softSerial1.write(Serial2.read());   
-  }
-}
