@@ -5,8 +5,10 @@ void diag();
 void pixhawk_USB();
 void RFD900_Pixhawk();
 void RFD900_Jetson();
+void RFD900_OPENHD_Pixhawk();
 
 SoftwareSerial softSerial(22, 23); // RX, TX
+SoftwareSerial softSerial1(19, 21); // RX, TX
 
 int GPIO_STATE = 0;
 int GPIO36 = 36;
@@ -17,6 +19,7 @@ int incomingByte = 0; // for incoming serial data
 
 void setup() {
   softSerial.begin(57600); //PIXHAWK  - Tx=GPIO23 Rx=GPIO22 
+  softSerial1.begin(57600); //OPENHD  - Tx=GPIO2 Rx=GPIO4
   Serial.begin(57600);  //JETSON - USB
   Serial2.begin(57600); //RFD900 - Tx=GPIO17 Rx=GPIO16 
   pinMode(14,OUTPUT); //PIXhawk active
@@ -55,7 +58,8 @@ void loop() {
       digitalWrite(12,HIGH);
       break;
     default: //Pixhawk mode
-      RFD900_Pixhawk();
+      //RFD900_Pixhawk();
+      RFD900_OPENHD_Pixhawk();
       digitalWrite(14,HIGH);
       digitalWrite(12,LOW);
       break;
@@ -101,3 +105,16 @@ void RFD900_Jetson(){
   }
 }
 
+void RFD900_OPENHD_Pixhawk(){
+  if (softSerial.available()) {   
+      byte SERIAL_DATA = softSerial.read();
+      Serial2.write(SERIAL_DATA);
+      if (softSerial1.available()) {
+        softSerial1.write(SERIAL_DATA);
+      }
+  }
+
+  if (Serial2.available()) {    
+    softSerial.write(Serial2.read());   
+  }
+}
